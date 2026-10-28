@@ -8,7 +8,8 @@ const EMBED_BATCH = 64;
 
 // PDF 파일에서 쪽마다 글자를 꺼내요. (pdf.js 사용, 설치 없이 브라우저 안에서 동작)
 export async function readPdf(file: File): Promise<{ page: number; text: string }[]> {
-  const pdfjs = await import("pdfjs-dist");
+  // legacy 빌드: 조금 오래된 브라우저(사내 PC, 삼성 인터넷 등)에서도 동작하는 버전이에요.
+  const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   pdfjs.GlobalWorkerOptions.workerSrc = "/pdfjs/pdf.worker.min.mjs";
 
   const task = pdfjs.getDocument({
