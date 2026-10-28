@@ -47,3 +47,53 @@ body {
   word-break: keep-all;
   overflow-wrap: break-word;
 }
+
+/* ───── 픽셀 게 캐릭터 동작 ───── */
+.crab-svg rect { transition: fill 0.2s; }
+.crab-body, .crab-claw-left, .crab-claw-right, .crab-eyes, .crab-legs {
+  transform-box: fill-box;
+}
+.crab-claw-left { transform-origin: 100% 100%; }
+.crab-claw-right { transform-origin: 0% 100%; }
+.crab-eyes { transform-origin: 50% 100%; }
+
+/* 기다릴 때: 살짝 숨쉬기 + 눈 깜빡임 */
+.crab-idle .crab-body { animation: crab-bob 1.6s steps(2) infinite; }
+.crab-idle .crab-eyes { animation: crab-blink 4s infinite; }
+/* 문서 읽는 중: 천천히 끄덕이며 집게로 책장 넘기기 */
+.crab-reading .crab-body { animation: crab-bob 1s steps(2) infinite; }
+.crab-reading .crab-claw-right { animation: crab-snip-r 0.5s steps(2) infinite; }
+/* 생각 중: 집게를 번갈아 움직이고 점 세 개가 깜빡여요 */
+.crab-thinking .crab-claw-left { animation: crab-snip 0.8s steps(2) infinite; }
+.crab-thinking .crab-claw-right { animation: crab-snip-r 0.8s steps(2) 0.4s infinite; }
+.crab-dots i { display: block; width: 5px; height: 5px; background: var(--brand-400); animation: crab-dot 1.2s steps(1) infinite; }
+.crab-dots i:nth-child(2) { animation-delay: 0.2s; }
+.crab-dots i:nth-child(3) { animation-delay: 0.4s; }
+/* 답변 완료: 깡충 뛰며 집게 번쩍 */
+.crab-happy .crab-svg { animation: crab-jump 0.6s steps(3) 2; }
+.crab-happy .crab-claw-left { animation: crab-snip 0.3s steps(2) 4; }
+.crab-happy .crab-claw-right { animation: crab-snip-r 0.3s steps(2) 4; }
+/* 오류: 좌우로 흔들흔들 */
+.crab-error .crab-svg { animation: crab-shake 0.4s steps(4) 2; }
+/* 잠: 느리게 숨쉬고 Zz가 떠올라요 */
+.crab-sleeping .crab-body { animation: crab-bob 3s steps(2) infinite; }
+.crab-sleeping .crab-speech { opacity: 0.7; }
+.crab-zzz { animation: crab-float 2.4s steps(4) infinite; }
+
+/* 말풍선이 바뀔 때 톡 튀어나와요 */
+.crab-speech { animation: crab-pop 0.25s steps(2); }
+
+@keyframes crab-bob { 50% { transform: translateY(5%); } }
+@keyframes crab-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.2); } }
+@keyframes crab-snip { 50% { transform: rotate(-12deg) translateY(-8%); } }
+@keyframes crab-snip-r { 50% { transform: rotate(12deg) translateY(-8%); } }
+@keyframes crab-jump { 50% { transform: translateY(-18%); } }
+@keyframes crab-shake { 25% { transform: translateX(-4%); } 75% { transform: translateX(4%); } }
+@keyframes crab-dot { 0%, 100% { opacity: 0.2; } 30% { opacity: 1; } }
+@keyframes crab-float { 0% { transform: translateY(0); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateY(-12px); opacity: 0; } }
+@keyframes crab-pop { 0% { transform: scale(0.85); } 100% { transform: scale(1); } }
+
+/* 움직임 줄이기 설정을 켠 사용자에게는 애니메이션을 꺼요 */
+@media (prefers-reduced-motion: reduce) {
+  .crab *, .crab { animation: none !important; }
+}

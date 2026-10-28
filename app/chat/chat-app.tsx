@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import PixelCrab, { type CrabMood } from "@/components/pixel-crab";
 import { embed, isDocx, isPdf, pickRelevant, readDocx, readPdf, splitIntoChunks, type Chunk } from "@/lib/rag";
 
 type Doc = { id: string; name: string; status: "reading" | "ready" | "error"; detail: string };
@@ -13,10 +14,19 @@ export default function ChatApp() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [question, setQuestion] = useState("");
   const [asking, setAsking] = useState(false);
+  const [flash, setFlash] = useState<{ mood: CrabMood; at: number } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const readyCount = docs.filter((d) => d.status === "ready").length;
   const busy = docs.some((d) => d.status === "reading");
+  const crabMood: CrabMood = asking ? "thinking" : busy ? "reading" : flash ? flash.mood : "idle";
+
+  // 답변 완료·오류 같은 순간 반응은 잠깐만 보여주고 다시 기본 상태로 돌아가요.
+  useEffect(() => {
+    if (!flash) return;
+    const t = window.setTimeout(() => setFlash(null), 3000);
+    return () => window.clearTimeout(t);
+  }, [flash]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -51,11 +61,13 @@ export default function ChatApp() {
         updateDoc(id, { detail: "내용을 정리하는 중..." });
         const embeddings = await embed(pieces.map((p) => p.text));
         setChunks((prev) => [...prev, ...pieces.map((p, i) => ({ ...p, docId: id, embedding: embeddings[i] }))]);
+        setFlash({ mood: "happy", at: Date.now() });
         updateDoc(id, {
           status: "ready",
           detail: `문서 준비 완료 · ${isPdf(file) ? `${sections.length}쪽` : `${sections.length}부분`}`,
         });
       } catch (error) {
+        setFlash({ mood: "error", at: Date.now() });
         updateDoc(id, {
           status: "error",
           detail: error instanceof Error ? error.message : "문서를 읽지 못했어요.",
@@ -91,7 +103,9 @@ export default function ChatApp() {
       if (!res.ok) throw new Error(data.error ?? "답변을 받지 못했어요.");
       const refs = [...new Set(sources.map((s) => `${s.name} ${s.loc}`))];
       setMessages((prev) => [...prev, { role: "assistant", content: data.answer, refs }]);
+      setFlash({ mood: "happy", at: Date.now() });
     } catch (error) {
+      setFlash({ mood: "error", at: Date.now() });
       setMessages((prev) => [
         ...prev,
         {
@@ -123,6 +137,9 @@ export default function ChatApp() {
           PDF나 워드 문서를 올리고 질문하면, 올린 문서의 내용만 바탕으로 답해 드려요.
         </p>
       </section>
+
+      {/* 픽셀 게: 좁은 화면에서는 위쪽, 넓은 PC 화면에서는 오른쪽 아래 구석에 있어요 */}
+      <PixelCrab mood={crabMood} className="-mt-2 lg:fixed lg:bottom-6 lg:right-6 lg:z-10 lg:mt-0" />
 
       {/* 문서 올리기 */}
       <section className="rounded-2xl border border-brand-100 bg-white p-5 shadow-sm sm:p-6">
