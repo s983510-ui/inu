@@ -74,7 +74,7 @@ function cosine(a: number[], b: number[]) {
 
 // 질문과 가장 가까운 조각을 고르고, 문서·쪽 순서대로 정리해요.
 // 문서 전체가 짧으면 빠뜨리는 내용이 없도록 전부 보내요.
-export function pickRelevant(chunks: Chunk[], questionEmbedding: number[], topK = 12) {
+export function pickRelevant(chunks: Chunk[], questionEmbedding: number[], topK = 20) {
   const totalLength = chunks.reduce((sum, c) => sum + c.text.length, 0);
   const picked =
     totalLength <= 20000

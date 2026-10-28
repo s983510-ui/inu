@@ -141,13 +141,13 @@ export default function ChatApp() {
               <li key={doc.id} className="flex items-center gap-3 rounded-lg bg-brand-50 px-4 py-3">
                 <span
                   className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                    doc.status === "ready" ? "bg-emerald-500" : doc.status === "error" ? "bg-accent" : "animate-pulse bg-brand-400"
+                    doc.status === "ready" ? "bg-success" : doc.status === "error" ? "bg-accent" : "animate-pulse bg-brand-400"
                   }`}
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-ink">{doc.name}</p>
-                  <p className={`text-xs ${doc.status === "error" ? "text-accent" : doc.status === "ready" ? "text-emerald-700" : "text-muted"}`}>
+                  <p className={`text-xs ${doc.status === "error" ? "text-accent" : doc.status === "ready" ? "text-success" : "text-muted"}`}>
                     {doc.detail}
                   </p>
                 </div>
@@ -181,7 +181,7 @@ export default function ChatApp() {
               <div
                 key={i}
                 className={`max-w-[92%] self-start rounded-2xl rounded-bl-sm px-4 py-3 ${
-                  m.error ? "bg-red-50 text-red-700" : "bg-brand-50 text-ink"
+                  m.error ? "bg-error-bg text-accent" : "bg-brand-50 text-ink"
                 }`}
               >
                 <p className="whitespace-pre-wrap leading-7">{m.content}</p>
