@@ -1,16 +1,19 @@
 @import "tailwindcss";
 
 /*
-  색상 팔레트 (파란색 계열)
-  로고를 public 폴더에 넣으면, 로고 색에 맞춰 아래 값만 바꾸면 사이트 전체 색이 바뀌어요.
+  색상 팔레트 — public/logo.png 로고에서 뽑은 색이에요.
+  남색(#163a75)이 기본색이고, 빨간색(#ed1c24)은 작은 포인트에만 써요.
+  아래 값만 바꾸면 사이트 전체 색이 바뀌어요.
 */
 :root {
-  --brand-950: #0a1f4d;
-  --brand-800: #123c8c;
-  --brand-600: #1f5fd1;
-  --brand-400: #6b9cf0;
-  --brand-100: #dce8fc;
-  --brand-50: #f2f6fe;
+  --brand-950: #0d2550;
+  --brand-800: #163a75;
+  --brand-600: #2557a8;
+  --brand-400: #7b9fd6;
+  --brand-100: #dbe5f4;
+  --brand-50: #f1f5fb;
+  --accent: #ed1c24;
+  --gray: #9c9a9b;
   --ink: #1b2433;
   --muted: #5b6678;
   --background: #f7f9fc;
@@ -23,6 +26,8 @@
   --color-brand-400: var(--brand-400);
   --color-brand-100: var(--brand-100);
   --color-brand-50: var(--brand-50);
+  --color-accent: var(--accent);
+  --color-gray: var(--gray);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-background: var(--background);

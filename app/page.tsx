@@ -5,8 +5,9 @@ import Image from "next/image";
 const profile = {
   name: "조인우",
   organization: "한국자산관리공사",
+  position: "대리",
   tagline: "국유재산관리 실무자",
-  duties: ["국유재산 관리1", "국유재산 관리2", "국유재산 관리3"],
+  duties: ["창녕군", "진해구"],
   email: "s983510@gmail.com",
 };
 
@@ -14,6 +15,11 @@ const profile = {
 const hasLogo = existsSync(path.join(process.cwd(), "public", "logo.png"));
 
 const dutyIcons = [
+  // 지도 위치
+  <svg key="map" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
+    <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+    <circle cx="12" cy="9.5" r="2.5" />
+  </svg>,
   // 건물
   <svg key="building" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
     <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 10h.01M15 10h.01M9 13h.01M15 13h.01" />
@@ -23,11 +29,6 @@ const dutyIcons = [
     <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
     <path d="M14 3v5h5M9 13h6M9 17h6" />
   </svg>,
-  // 지도 위치
-  <svg key="map" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-6 w-6">
-    <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
-    <circle cx="12" cy="9.5" r="2.5" />
-  </svg>,
 ];
 
 export default function Home() {
@@ -36,7 +37,7 @@ export default function Home() {
       {/* 1. 로고 */}
       {hasLogo && (
         <div className="flex justify-center">
-          <Image src="/logo.png" alt={`${profile.organization} 로고`} width={160} height={64} className="h-12 w-auto sm:h-14" priority />
+          <Image src="/logo.png" alt={`${profile.organization} 로고`} width={2000} height={1279} className="h-16 w-auto sm:h-20" priority />
         </div>
       )}
 
@@ -45,9 +46,11 @@ export default function Home() {
         <div aria-hidden className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-600/40" />
         <div aria-hidden className="absolute -bottom-20 -right-4 h-40 w-40 rounded-full bg-brand-400/20" />
         <div className="relative">
-          <p className="text-sm font-medium tracking-wide text-brand-100">{profile.organization}</p>
+          <p className="text-sm font-medium tracking-wide text-brand-100">
+            {profile.organization} · {profile.position}
+          </p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">{profile.name}</h1>
-          <div className="mt-5 h-px w-12 bg-brand-400" />
+          <div className="mt-5 h-0.5 w-12 bg-accent" />
           <p className="mt-5 text-lg text-brand-50 sm:text-xl">{profile.tagline}</p>
           <a href={`mailto:${profile.email}`} className="mt-6 inline-block text-sm text-brand-100 underline-offset-4 hover:underline">
             {profile.email}
@@ -59,8 +62,9 @@ export default function Home() {
       <section>
         <h2 className="text-xl font-bold text-brand-950 sm:text-2xl">소개</h2>
         <p className="mt-4 text-base leading-8 text-muted sm:text-lg sm:leading-9">
-          안녕하세요, {profile.organization}에서 국유재산관리 실무를 맡고 있는 {profile.name}입니다.
-          현재 {profile.duties.join(", ")} 업무를 담당하고 있습니다.
+          안녕하세요, {profile.organization} {profile.position} {profile.name}입니다.
+          국유재산관리 실무를 맡고 있습니다.
+          현재 {profile.duties.join("과 ")}의 국유재산 관리 업무를 담당하고 있습니다.
           업무와 관련한 문의는 아래 이메일로 편하게 연락해 주세요.
         </p>
       </section>
@@ -68,9 +72,9 @@ export default function Home() {
       {/* 4. 담당 업무 카드 */}
       <section>
         <h2 className="text-xl font-bold text-brand-950 sm:text-2xl">담당 업무</h2>
-        <ul className="mt-5 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-5 grid gap-4 sm:grid-cols-2">
           {profile.duties.map((duty, i) => (
-            <li key={duty} className="flex items-center gap-4 rounded-xl border border-brand-100 bg-white p-5 shadow-sm sm:flex-col sm:items-start">
+            <li key={duty} className="flex items-center gap-4 rounded-xl border border-brand-100 bg-white p-5 shadow-sm sm:p-6">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
                 {dutyIcons[i % dutyIcons.length]}
               </span>

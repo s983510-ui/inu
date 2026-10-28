@@ -12,11 +12,11 @@ const notoSansKr = Noto_Sans_KR({
 
 export const metadata: Metadata = {
   title: "조인우 | 한국자산관리공사",
-  description: "한국자산관리공사 국유재산관리 실무자 조인우의 프로필",
+  description: "한국자산관리공사 대리 조인우의 프로필",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#123c8c",
+  themeColor: "#163a75",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
