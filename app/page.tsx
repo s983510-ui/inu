@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import Image from "next/image";
+import Link from "next/link";
 
 const profile = {
   name: "조인우",
@@ -34,6 +35,19 @@ const dutyIcons = [
 export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-12 px-4 py-10 sm:px-6 sm:py-16">
+      {/* 챗봇 바로가기 */}
+      <nav className="-mb-6 flex justify-end sm:-mb-10">
+        <Link
+          href="/chat"
+          className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-800"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden>
+            <path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.6A8 8 0 1 1 21 12z" />
+          </svg>
+          RAG 챗봇
+        </Link>
+      </nav>
+
       {/* 1. 로고 */}
       {hasLogo && (
         <div className="flex justify-center">
