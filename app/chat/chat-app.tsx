@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { embed, pickRelevant, readPdf, splitIntoChunks, type Chunk } from "@/lib/rag";
+import { embed, isDocx, isPdf, pickRelevant, readDocx, readPdf, splitIntoChunks, type Chunk } from "@/lib/rag";
 
 type Doc = { id: string; name: string; status: "reading" | "ready" | "error"; detail: string };
 type Message = { role: "user" | "assistant"; content: string; refs?: string[]; error?: boolean };
@@ -33,18 +33,28 @@ export default function ChatApp() {
       setDocs((prev) => [...prev, { id, name: file.name, status: "reading", detail: "글자를 읽는 중..." }]);
 
       try {
-        if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-          throw new Error("PDF 파일만 올릴 수 있어요.");
+        let sections;
+        if (isPdf(file)) {
+          sections = await readPdf(file);
+          if (sections.length === 0) {
+            throw new Error("글자를 찾지 못했어요. 스캔한 이미지 PDF는 읽을 수 없어요.");
+          }
+        } else if (isDocx(file)) {
+          sections = await readDocx(file);
+          if (sections.length === 0) throw new Error("문서에서 글자를 찾지 못했어요.");
+        } else if (file.name.toLowerCase().endsWith(".doc")) {
+          throw new Error("옛날 워드 형식(.doc)은 읽을 수 없어요. 워드에서 .docx로 다시 저장해 올려 주세요.");
+        } else {
+          throw new Error("PDF 또는 워드(.docx) 파일만 올릴 수 있어요.");
         }
-        const pages = await readPdf(file);
-        if (pages.length === 0) {
-          throw new Error("글자를 찾지 못했어요. 스캔한 이미지 PDF는 읽을 수 없어요.");
-        }
-        const pieces = splitIntoChunks(file.name, pages);
+        const pieces = splitIntoChunks(file.name, sections);
         updateDoc(id, { detail: "내용을 정리하는 중..." });
         const embeddings = await embed(pieces.map((p) => p.text));
         setChunks((prev) => [...prev, ...pieces.map((p, i) => ({ ...p, docId: id, embedding: embeddings[i] }))]);
-        updateDoc(id, { status: "ready", detail: `문서 준비 완료 · ${pages.length}쪽` });
+        updateDoc(id, {
+          status: "ready",
+          detail: `문서 준비 완료 · ${isPdf(file) ? `${sections.length}쪽` : `${sections.length}부분`}`,
+        });
       } catch (error) {
         updateDoc(id, {
           status: "error",
@@ -71,7 +81,7 @@ export default function ChatApp() {
 
     try {
       const [questionEmbedding] = await embed([q]);
-      const sources = pickRelevant(chunks, questionEmbedding).map(({ name, page, text }) => ({ name, page, text }));
+      const sources = pickRelevant(chunks, questionEmbedding).map(({ name, loc, text }) => ({ name, loc, text }));
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,7 +89,7 @@ export default function ChatApp() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "답변을 받지 못했어요.");
-      const refs = [...new Set(sources.map((s) => `${s.name} p.${s.page}`))];
+      const refs = [...new Set(sources.map((s) => `${s.name} ${s.loc}`))];
       setMessages((prev) => [...prev, { role: "assistant", content: data.answer, refs }]);
     } catch (error) {
       setMessages((prev) => [
@@ -110,7 +120,7 @@ export default function ChatApp() {
         <h1 className="text-2xl font-bold sm:text-3xl">RAG 챗봇</h1>
         <div className="mt-3 h-0.5 w-10 bg-accent" />
         <p className="mt-3 text-sm leading-6 text-brand-100 sm:text-base">
-          PDF 문서를 올리고 질문하면, 올린 문서의 내용만 바탕으로 답해 드려요.
+          PDF나 워드 문서를 올리고 질문하면, 올린 문서의 내용만 바탕으로 답해 드려요.
         </p>
       </section>
 
@@ -121,11 +131,11 @@ export default function ChatApp() {
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-brand-600" aria-hidden>
             <path d="M12 16V4M7 9l5-5 5 5M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
           </svg>
-          <span className="font-semibold text-brand-800">PDF 파일 선택</span>
-          <span className="text-sm text-muted">여러 개를 한 번에 올려도 돼요</span>
+          <span className="font-semibold text-brand-800">PDF · 워드 파일 선택</span>
+          <span className="text-sm text-muted">PDF, 워드(.docx) 파일을 여러 개 한 번에 올려도 돼요</span>
           <input
             type="file"
-            accept="application/pdf,.pdf"
+            accept="application/pdf,.pdf,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             multiple
             className="sr-only"
             onChange={(e) => {
@@ -169,7 +179,7 @@ export default function ChatApp() {
         <div className="mt-4 flex min-h-48 flex-col gap-3">
           {messages.length === 0 && !asking && (
             <p className="m-auto text-center text-sm leading-6 text-muted">
-              {readyCount > 0 ? "문서에 대해 궁금한 점을 물어보세요." : "먼저 위에서 PDF 문서를 올려 주세요."}
+              {readyCount > 0 ? "문서에 대해 궁금한 점을 물어보세요." : "먼저 위에서 PDF나 워드 문서를 올려 주세요."}
             </p>
           )}
           {messages.map((m, i) =>
